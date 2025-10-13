@@ -291,7 +291,7 @@ const CartPage = () => {
                           </Button>
                         </div>
                       </Col>
-                      <Col md={1}>
+                      <Col md={1}> 
                         <div className="item-total">
                           ₹{item.totalPrice.toFixed(2)}
                         </div>
