@@ -1,0 +1,181 @@
+/* Bootstrap Custom Styles for Ramesh Aqua Theme */
+
+/* Custom Bootstrap Variables */
+:root {
+  --bs-primary: #3b82f6;
+  --bs-primary-rgb: 59, 130, 246;
+  --bs-secondary: #6b7280;
+  --bs-secondary-rgb: 107, 114, 128;
+  --bs-success: #10b981;
+  --bs-info: #0ea5e9;
+  --bs-warning: #f59e0b;
+  --bs-danger: #ef4444;
+  --bs-light: #f9fafb;
+  --bs-dark: #111827;
+  --bs-dark-rgb: 17, 24, 39;
+  --bs-body-bg: #111827;
+  --bs-body-color: #f9fafb;
+}
+
+/* Global Application Background */
+html,
+body,
+#root,
+.app {
+  background-color: var(--bs-dark) !important;
+  color: var(--bs-body-color) !important;
+  min-height: 100vh;
+}
+
+/* Custom Navbar Styles */
+.custom-navbar {
+  border: none !important;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.2) !important;
+  background-color: rgba(17, 24, 39, 0.95) !important;
+  backdrop-filter: blur(20px);
+}
+
+.custom-navbar.scrolled {
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3) !important;
+  background-color: rgba(17, 24, 39, 0.98) !important;
+}
+
+.custom-navbar .navbar-brand {
+  background: linear-gradient(135deg, var(--bs-primary), #1d4ed8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.custom-navbar .navbar-toggler {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.custom-navbar .navbar-toggler:focus {
+  box-shadow: none !important;
+}
+
+/* Custom Button Styles */
+.btn-outline-primary {
+  border-color: var(--bs-primary);
+  color: var(--bs-primary);
+  background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+}
+
+.btn-primary {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+/* Custom Form Controls */
+.form-control {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--bs-body-color);
+}
+
+.form-control:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.form-control::placeholder {
+  color: rgba(249, 250, 251, 0.6);
+}
+
+.input-group-text {
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--bs-body-color);
+}
+
+/* Custom Dropdown */
+.dropdown-menu {
+  background-color: var(--bs-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 0.5rem;
+  color: var(--bs-body-color);
+}
+
+.dropdown-item {
+  color: var(--bs-body-color);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--bs-body-color);
+}
+
+.dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Badge */
+.badge {
+  font-size: 0.6em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .custom-navbar .navbar-collapse {
+    border-top: 1px solid #e5e7eb;
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+}
+
+/* Loading states */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Custom card styles */
+.card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  color: var(--bs-body-color);
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.3s ease;
+}
+
+.card-body {
+  color: var(--bs-body-color);
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.3s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1d4ed8;
+}
