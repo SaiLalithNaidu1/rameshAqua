@@ -198,7 +198,7 @@ const Header = () => {
         </Navbar.Collapse>
 
         {/* Mobile Search Bar */}
-        <div className="d-md-none mt-2 px-2">
+        {/* <div className="d-md-none mt-2 px-2">
           <Form>
             <InputGroup>
               <InputGroup.Text className="bg-light">
@@ -211,7 +211,7 @@ const Header = () => {
               />
             </InputGroup>
           </Form>
-        </div>
+        </div> */}
       </Container>
     </Navbar>
   );

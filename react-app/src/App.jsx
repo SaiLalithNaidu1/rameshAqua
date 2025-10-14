@@ -8,7 +8,9 @@ import { auth } from './firebase/config'
 import { store } from './store/store'
 import { loginSuccess, logout } from './store/slices/authSlice'
 import { LoginScreen } from './components/auth'
-import { HomeScreen, CategoriesPage, ProductsPage, CartPage, ProductDetailPage } from './components/pages'
+import { HomeScreen, CategoriesPage, ProductsPage, CartPage, ProductDetailPage, ProfilePage } from './components/pages'
+import MigrationAdmin from './components/admin/MigrationAdmin'
+import { MobileContainer } from './components/mobile'
 import './App.css'
 
 // Protected Route Component
@@ -77,57 +79,75 @@ function AppContent() {
 
   return (
     <Router>
-      <Routes>
-        <Route 
-          path="/login" 
-          element={
-            <PublicRoute>
-              <LoginScreen />
-            </PublicRoute>
-          } 
-        />
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute>
-              <HomeScreen />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/categories" 
-          element={
-            <ProtectedRoute>
-              <CategoriesPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/products/:categoryId" 
-          element={
-            <ProtectedRoute>
-              <ProductsPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/cart" 
-          element={
-            <ProtectedRoute>
-              <CartPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/product/:productId" 
-          element={
-            <ProtectedRoute>
-              <ProductDetailPage />
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <MobileContainer>
+        <Routes>
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <LoginScreen />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/" 
+            element={
+              <ProtectedRoute>
+                <HomeScreen />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/categories" 
+            element={
+              <ProtectedRoute>
+                <CategoriesPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/products/:categoryId" 
+            element={
+              <ProtectedRoute>
+                <ProductsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/cart" 
+            element={
+              <ProtectedRoute>
+                <CartPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/product/:productId" 
+            element={
+              <ProtectedRoute>
+                <ProductDetailPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/migration" 
+            element={
+              <ProtectedRoute>
+                <MigrationAdmin />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </MobileContainer>
     </Router>
   )
 }

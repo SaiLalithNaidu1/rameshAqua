@@ -1,0 +1,37 @@
+.migration-admin {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding-top: 80px;
+}
+
+.migration-admin .card {
+  border: none;
+  border-radius: 15px;
+}
+
+.migration-admin .card-header {
+  border-radius: 15px 15px 0 0 !important;
+  padding: 1.5rem;
+}
+
+.migration-admin .btn {
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.migration-admin .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.migration-admin .progress {
+  height: 30px;
+  border-radius: 15px;
+}
+
+.migration-admin .alert {
+  border-radius: 10px;
+  border: none;
+}

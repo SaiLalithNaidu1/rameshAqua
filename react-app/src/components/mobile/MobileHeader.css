@@ -1,0 +1,156 @@
+.mobile-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: #1976d2;
+  color: white;
+  z-index: 999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: none;
+}
+
+.mobile-header.transparent {
+  background: transparent;
+  box-shadow: none;
+}
+
+.mobile-header-content {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 8px;
+  max-width: 100%;
+}
+
+.header-back-btn,
+.header-action-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.header-back-btn:active,
+.header-action-btn:active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.header-back-btn i,
+.header-action-btn i {
+  font-size: 1.2rem;
+}
+
+.header-title-section {
+  flex: 1;
+  margin: 0 8px;
+  overflow: hidden;
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.header-subtitle {
+  font-size: 0.75rem;
+  margin: 0;
+  opacity: 0.9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.action-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #ff1744;
+  color: white;
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* Ripple effect for buttons */
+.ripple-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple-btn:active::after {
+  width: 100%;
+  height: 100%;
+}
+
+/* Show on mobile */
+@media (max-width: 767px) {
+  .mobile-header {
+    display: block;
+  }
+  
+  /* Safe area support */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    .mobile-header {
+      padding-top: env(safe-area-inset-top);
+      height: calc(56px + env(safe-area-inset-top));
+    }
+  }
+}
+
+/* Animation */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.mobile-header {
+  animation: slideDown 0.3s ease-out;
+}
