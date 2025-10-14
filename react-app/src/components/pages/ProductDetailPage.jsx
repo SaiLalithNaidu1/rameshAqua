@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Container, Row, Col, Card, Button, Badge, Image, Breadcrumb } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Badge, Image, Breadcrumb, Spinner, Alert } from 'react-bootstrap';
 import { FaArrowLeft, FaShoppingCart, FaStar, FaHeart, FaShare } from 'react-icons/fa';
 import { addToCart, incrementQuantity, decrementQuantity } from '../../store/slices/cartSlice';
+import { fetchProductById } from '../../firebase/firestoreService';
 import { Header } from '../layout';
 import './ProductDetailPage.css';
 
@@ -12,81 +13,152 @@ const ProductDetailPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cartItems = useSelector(state => state.cart.items);
+  const { user } = useSelector(state => state.auth);
+  
   const [selectedImage, setSelectedImage] = useState(0);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock product data - replace with actual API call later
-  const product = {
-    id: parseInt(productId),
-    name: "Premium Water Purification System",
-    description: "Advanced multi-stage water purification system designed for home and office use. Features cutting-edge filtration technology to ensure pure, safe drinking water.",
-    longDescription: `
-      Our Premium Water Purification System combines the latest in filtration technology with elegant design. 
-      This system uses a 7-stage purification process including:
+  // Fetch product data from Firebase
+  useEffect(() => {
+    const loadProduct = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const productData = await fetchProductById(productId);
+        
+        if (productData) {
+          setProduct(productData);
+        } else {
+          setError('Product not found');
+        }
+      } catch (err) {
+        console.error('Error loading product:', err);
+        setError('Failed to load product. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProduct();
+  }, [productId]);
+
+  const cartItem = cartItems.find(item => item?.id === product?.id);
+  const quantity = cartItem ? cartItem.quantity : 0;
+
+  // Track product view when product is loaded
+  useEffect(() => {
+    if (product && product.id) {
+      import('../../firebase/firestoreService').then(({ trackProductView }) => {
+        trackProductView(product.id, user?.uid);
+      });
+    }
+  }, [product, user]);
+
+  const handleAddToCart = () => {
+    if (product) {
+      dispatch(addToCart({ product, quantity: 1 }));
       
-      • Pre-filtration to remove large particles
-      • Activated carbon filtration for chlorine and odor removal
-      • RO membrane for dissolved impurities removal
-      • UV sterilization for bacteria and virus elimination
-      • Mineral cartridge for essential mineral retention
-      • Post-carbon filter for taste enhancement
-      • Silver-activated carbon for extended freshness
-      
-      Perfect for families and offices, this system provides up to 12 liters per hour of pure drinking water.
-      The compact design fits easily under most kitchen sinks, and the smart indicator system alerts you 
-      when filter replacement is needed.
-    `,
-    price: "₹24,999",
-    originalPrice: "₹32,999",
-    images: [
-      "/api/placeholder/500/400",
-      "/api/placeholder/500/400",
-      "/api/placeholder/500/400",
-      "/api/placeholder/500/400"
-    ],
-    rating: 4.5,
-    reviewCount: 127,
-    inStock: true,
-    category: "Water Purifiers",
-    brand: "Ramesh Aqua",
-    warranty: "2 Years Comprehensive Warranty",
-    installation: "Free Installation Included",
-    features: [
-      "7-Stage Purification Process",
-      "12L/Hour Purification Capacity",
-      "Smart Filter Change Indicator",
-      "Compact Under-Sink Design",
-      "Energy Efficient Operation",
-      "BIS Certified Product"
-    ],
-    specifications: {
-      "Purification Capacity": "12 Liters/Hour",
-      "Storage Tank": "8 Liters",
-      "Power Consumption": "60W",
-      "Dimensions": "350 x 280 x 480 mm",
-      "Weight": "8.5 kg",
-      "Inlet Water Pressure": "10-40 PSI",
-      "Operating Temperature": "10-40°C"
+      // Track add to cart action
+      import('../../firebase/firestoreService').then(({ trackProductInteraction }) => {
+        trackProductInteraction(product.id, 'add_to_cart', user?.uid);
+      });
     }
   };
 
-  const cartItem = cartItems.find(item => item.id === product.id);
-  const quantity = cartItem ? cartItem.quantity : 0;
-
-  const handleAddToCart = () => {
-    dispatch(addToCart({ product, quantity: 1 }));
-  };
-
   const handleIncrement = () => {
-    dispatch(incrementQuantity(product.id));
+    if (product) {
+      dispatch(incrementQuantity(product.id));
+    }
   };
 
   const handleDecrement = () => {
-    dispatch(decrementQuantity(product.id));
+    if (product) {
+      dispatch(decrementQuantity(product.id));
+    }
+  };
+
+  const handleWishlist = async () => {
+    if (!user) {
+      alert('Please login to add items to wishlist');
+      navigate('/login');
+      return;
+    }
+
+    if (product) {
+      try {
+        const { addToWishlist } = await import('../../firebase/firestoreService');
+        await addToWishlist(user.uid, product);
+        alert('Added to wishlist!');
+      } catch (err) {
+        console.error('Error adding to wishlist:', err);
+        alert('Failed to add to wishlist');
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    if (product) {
+      // Track share action
+      import('../../firebase/firestoreService').then(({ trackProductInteraction }) => {
+        trackProductInteraction(product.id, 'share', user?.uid);
+      });
+
+      // Use Web Share API if available
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: product.title || product.name,
+            text: product.description,
+            url: window.location.href
+          });
+        } catch (err) {
+          console.log('Share cancelled or failed:', err);
+        }
+      } else {
+        // Fallback: Copy to clipboard
+        navigator.clipboard.writeText(window.location.href);
+        alert('Product link copied to clipboard!');
+      }
+    }
   };
 
   const handleGoBack = () => {
     navigate(-1);
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <Container className="py-5 text-center">
+          <Spinner animation="border" variant="primary" />
+          <p className="mt-3">Loading product details...</p>
+        </Container>
+      </>
+    );
+  }
+
+  // Error state
+  if (error || !product) {
+    return (
+      <>
+        <Header />
+        <Container className="py-5">
+          <Alert variant="danger">
+            <Alert.Heading>Error</Alert.Heading>
+            <p>{error || 'Product not found'}</p>
+            <Button variant="primary" onClick={() => navigate('/categories')}>
+              Browse Categories
+            </Button>
+          </Alert>
+        </Container>
+      </>
+    );
+  }
 
   return (
     <>
@@ -127,30 +199,35 @@ const ProductDetailPage = () => {
               <Card className="product-images-card">
                 <div className="main-image-container">
                   <Image 
-                    src={product.images[selectedImage]} 
-                    alt={product.name}
+                    src={
+                      product.images && product.images.length > 0 
+                        ? product.images[selectedImage] 
+                        : product.imageUrl || '/api/placeholder/500/400'
+                    } 
+                    alt={product.title || product.name}
                     className="main-product-image"
                     fluid
                   />
                   {product.originalPrice && (
                     <Badge bg="danger" className="discount-badge">
-                      Save ₹{parseInt(product.originalPrice.replace('₹', '').replace(',', '')) - 
-                             parseInt(product.price.replace('₹', '').replace(',', ''))}
+                      Save ₹{parseInt(product.originalPrice) - parseInt(product.price)}
                     </Badge>
                   )}
                 </div>
                 
-                <div className="thumbnail-container">
-                  {product.images.map((image, index) => (
-                    <div 
-                      key={index}
-                      className={`thumbnail ${selectedImage === index ? 'active' : ''}`}
-                      onClick={() => setSelectedImage(index)}
-                    >
-                      <Image src={image} alt={`${product.name} ${index + 1}`} fluid />
-                    </div>
-                  ))}
-                </div>
+                {product.images && product.images.length > 1 && (
+                  <div className="thumbnail-container">
+                    {product.images.map((image, index) => (
+                      <div 
+                        key={index}
+                        className={`thumbnail ${selectedImage === index ? 'active' : ''}`}
+                        onClick={() => setSelectedImage(index)}
+                      >
+                        <Image src={image} alt={`${product.title || product.name} ${index + 1}`} fluid />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </Card>
             </Col>
 
@@ -158,61 +235,68 @@ const ProductDetailPage = () => {
             <Col lg={6}>
               <div className="product-info-container">
                 <div className="product-header">
-                  <h1 className="product-title">{product.name}</h1>
+                  <h1 className="product-title">{product.title || product.name}</h1>
                   <div className="product-meta">
-                    <div className="rating-container">
-                      <div className="stars">
-                        {[...Array(5)].map((_, i) => (
-                          <FaStar 
-                            key={i} 
-                            className={i < Math.floor(product.rating) ? 'filled' : 'empty'} 
-                          />
-                        ))}
+                    {(product.rating || product.reviewCount) && (
+                      <div className="rating-container">
+                        <div className="stars">
+                          {[...Array(5)].map((_, i) => (
+                            <FaStar 
+                              key={i} 
+                              className={i < Math.floor(product.rating || 0) ? 'filled' : 'empty'} 
+                            />
+                          ))}
+                        </div>
+                        <span className="rating-text">
+                          {product.rating || 0} ({product.reviewCount || 0} reviews)
+                        </span>
                       </div>
-                      <span className="rating-text">
-                        {product.rating} ({product.reviewCount} reviews)
-                      </span>
-                    </div>
+                    )}
                     <div className="brand-info">
-                      Brand: <strong>{product.brand}</strong>
+                      Brand: <strong>{product.brand || 'Ramesh Aqua'}</strong>
                     </div>
                   </div>
                 </div>
 
                 <div className="price-container">
-                  <span className="current-price">{product.price}</span>
+                  <span className="current-price">₹{product.price}</span>
                   {product.originalPrice && (
-                    <span className="original-price">{product.originalPrice}</span>
+                    <span className="original-price">₹{product.originalPrice}</span>
                   )}
                   {product.originalPrice && (
                     <span className="discount-percent">
-                      {Math.round(((parseInt(product.originalPrice.replace('₹', '').replace(',', '')) - 
-                                   parseInt(product.price.replace('₹', '').replace(',', ''))) / 
-                                   parseInt(product.originalPrice.replace('₹', '').replace(',', ''))) * 100)}% OFF
+                      {Math.round(((parseInt(product.originalPrice) - parseInt(product.price)) / 
+                                   parseInt(product.originalPrice)) * 100)}% OFF
                     </span>
                   )}
                 </div>
 
-                <div className="product-description">
-                  <p>{product.description}</p>
-                </div>
+                {product.description && (
+                  <div className="product-description">
+                    <p>{product.description}</p>
+                  </div>
+                )}
 
-                <div className="key-features">
-                  <h6>Key Features:</h6>
-                  <ul>
-                    {product.features.map((feature, index) => (
-                      <li key={index}>{feature}</li>
-                    ))}
-                  </ul>
-                </div>
+                {product.features && product.features.length > 0 && (
+                  <div className="key-features">
+                    <h6>Key Features:</h6>
+                    <ul>
+                      {product.features.map((feature, index) => (
+                        <li key={index}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-                <div className="warranty-info">
-                  <Badge bg="success" className="me-2">{product.warranty}</Badge>
-                  <Badge bg="info">{product.installation}</Badge>
-                </div>
+                {(product.warranty || product.installation) && (
+                  <div className="warranty-info">
+                    {product.warranty && <Badge bg="success" className="me-2">{product.warranty}</Badge>}
+                    {product.installation && <Badge bg="info">{product.installation}</Badge>}
+                  </div>
+                )}
 
                 <div className="stock-status">
-                  {product.inStock ? (
+                  {product.inStock !== false ? (
                     <Badge bg="success">✓ In Stock</Badge>
                   ) : (
                     <Badge bg="danger">Out of Stock</Badge>
@@ -264,10 +348,18 @@ const ProductDetailPage = () => {
 
                 {/* Action Buttons */}
                 <div className="action-buttons">
-                  <Button variant="outline-danger" className="action-btn">
+                  <Button 
+                    variant="outline-danger" 
+                    className="action-btn"
+                    onClick={handleWishlist}
+                  >
                     <FaHeart /> Wishlist
                   </Button>
-                  <Button variant="outline-info" className="action-btn">
+                  <Button 
+                    variant="outline-info" 
+                    className="action-btn"
+                    onClick={handleShare}
+                  >
                     <FaShare /> Share
                   </Button>
                 </div>
@@ -276,43 +368,47 @@ const ProductDetailPage = () => {
           </Row>
 
           {/* Detailed Description */}
-          <Row className="mt-5">
-            <Col>
-              <Card>
-                <Card.Header>
-                  <h5>Product Details</h5>
-                </Card.Header>
-                <Card.Body>
-                  <div className="detailed-description">
-                    {product.longDescription.split('\n').map((paragraph, index) => (
-                      <p key={index}>{paragraph}</p>
-                    ))}
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+          {product.longDescription && (
+            <Row className="mt-5">
+              <Col>
+                <Card>
+                  <Card.Header>
+                    <h5>Product Details</h5>
+                  </Card.Header>
+                  <Card.Body>
+                    <div className="detailed-description">
+                      {product.longDescription.split('\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          )}
 
           {/* Specifications */}
-          <Row className="mt-4">
-            <Col>
-              <Card>
-                <Card.Header>
-                  <h5>Specifications</h5>
-                </Card.Header>
-                <Card.Body>
-                  <div className="specifications-table">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="spec-row">
-                        <div className="spec-label">{key}</div>
-                        <div className="spec-value">{value}</div>
-                      </div>
-                    ))}
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+          {product.specifications && Object.keys(product.specifications).length > 0 && (
+            <Row className="mt-4">
+              <Col>
+                <Card>
+                  <Card.Header>
+                    <h5>Specifications</h5>
+                  </Card.Header>
+                  <Card.Body>
+                    <div className="specifications-table">
+                      {Object.entries(product.specifications).map(([key, value]) => (
+                        <div key={key} className="spec-row">
+                          <div className="spec-label">{key}</div>
+                          <div className="spec-value">{value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          )}
         </Container>
       </div>
     </>
